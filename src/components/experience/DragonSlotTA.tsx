@@ -1,7 +1,6 @@
 "use client";
 import Image from "next/image";
 import { useDragonExperience } from "@/components/experience/DragonExperienceProviderTA";
-import { DragonControlsTA } from "@/components/experience/DragonControlsTA";
 
 export const DragonSlotTA = ({
   stage,
@@ -22,11 +21,13 @@ export const DragonSlotTA = ({
             : "Espacio de vuelo de Caraxes"
         }
         tabIndex={scene.ready ? 0 : undefined}
+        aria-describedby={`dragon-keyboard-${stage}`}
         onKeyDown={(event) => {
-          if (
-            (event.key === "Enter" || event.key === " ") &&
-            event.target === event.currentTarget
-          ) {
+          if (event.target !== event.currentTarget || event.repeat) return;
+          if (event.key === " ") {
+            event.preventDefault();
+            playback.togglePause();
+          } else if (event.key === "Enter") {
             event.preventDefault();
             playback.roar();
           }
@@ -43,37 +44,29 @@ export const DragonSlotTA = ({
             />
             <span>
               {unavailable
-                ? "Vista conceptual · WebGL no disponible"
+                ? "Vista conceptual · Experiencia 3D no disponible"
                 : "Preparando un único vuelo continuo…"}
             </span>
           </div>
         )}
         {unavailable && stage !== "hero" && (
           <p className="experience-unavailable">
-            El visor 3D no está disponible en este dispositivo. Puedes explorar
-            los renders de la colección.
+            La experiencia 3D no está disponible. Puedes explorar los renders
+            de la colección.
           </p>
-        )}
-        {scene.behavior === "hovering" && scene.stage === stage && (
-          <span className="experience-hover-hint">
-            Haz clic para despertar su carácter
-          </span>
         )}
       </div>
       <div className="experience-slot-footer" data-dragon-ui>
-        <p>
-          {stage === "study"
-            ? inspect.enabled
-              ? "Arrastra el dragón · Pellizca o usa + / − para acercar"
-              : "El mismo dragón. Activa Inspeccionar para rotarlo."
-            : "Mueve el cursor. Haz clic sobre el dragón."}
-        </p>
-        <DragonControlsTA study={stage === "study"} />
         <span className="experience-asset-note">
           Modelo serpentino original · Interpretación provisional
         </span>
+        <span className="sr-only" id={`dragon-keyboard-${stage}`}>
+          Caraxes responde al cursor y al contacto. Espacio pausa o reanuda el
+          vuelo. Intro activa su reacción. Se respeta la reducción de movimiento
+          del dispositivo.
+        </span>
         <span className="sr-only" role="status">
-          {scene.stage === stage && fire.phase !== "idle"
+          {playback.paused ? "Vuelo en pausa" : scene.stage === stage && fire.phase !== "idle"
             ? `Fuego: ${fire.phase === "preparing" ? "preparando" : fire.phase === "breathing" ? "activo" : "en enfriamiento"}`
             : ""}
         </span>

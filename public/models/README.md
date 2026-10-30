@@ -7,4 +7,4 @@ Geometría procedural original creada para DRACONIS. No contiene recursos de ter
 - Animación integrada: `Flight`.
 - Anclaje para fuego: `Mouth`.
 
-La escena activa utiliza la versión v2. Consulta `README-v2.md`; el punto de integración vigente es `DragonWorldTA`, dentro de `src/components/experience`.
+La escena activa utiliza el rig Reborn, derivado de v2. Consulta `README-reborn.md`; el contrato reemplazable está en `src/components/experience/dragon-asset.ts` y su integración en `DragonWorldTA`.

@@ -5,7 +5,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -20,8 +19,6 @@ import { useDragonScrollDirector } from "@/components/experience/useDragonScroll
 import { useDragonPlayback } from "@/components/experience/useDragonPlayback";
 import { useDragonInput } from "@/components/experience/useDragonInput";
 import { useDragonFire } from "@/components/experience/useDragonFire";
-import { useDragonAudio } from "@/components/experience/useDragonAudio";
-import { DragonControlsTA } from "@/components/experience/DragonControlsTA";
 import { isFireStage } from "@/components/experience/flight-math";
 import "@/components/experience/experience.css";
 
@@ -44,18 +41,13 @@ export const DragonExperienceProviderTA = ({
 }) => {
   // ─── Scene and responsibility-specific controllers ───────────────────────────
   const frame = useRef(createDragonFrame());
-  const audio = useDragonAudio();
-  const { stop, play } = audio;
-  const { playback, viewport } = useDragonPlayback(frame, audio.stop);
+  const { playback, viewport } = useDragonPlayback(frame);
   const stage = useDragonScrollDirector(frame);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [behavior, setBehavior] = useState<DragonBehavior>("idle");
   const onReady = useCallback(() => setReady(true), []);
-  const onFailure = useCallback(() => {
-    setFailed(true);
-    stop();
-  }, [stop]);
+  const onFailure = useCallback(() => setFailed(true), []);
   const reportBehavior = useCallback(
     (next: DragonBehavior) =>
       setBehavior((current) => (current === next ? current : next)),
@@ -69,15 +61,14 @@ export const DragonExperienceProviderTA = ({
     )
       return;
     frame.current.animation.roarAt = performance.now();
-    play("roar");
     frame.current.invalidate?.();
-  }, [play]);
+  }, []);
   const inspect = useDragonInput(frame, roar);
-  const fireController = useDragonFire(frame, audio.play);
+  const fireController = useDragonFire(frame);
   const { cancel } = fireController;
   useEffect(() => {
-    if (playback.paused || !viewport.visible || !isFireStage(stage)) cancel();
-  }, [playback.paused, viewport.visible, stage, cancel]);
+    if (failed || playback.paused || !viewport.visible || !isFireStage(stage)) cancel();
+  }, [failed, playback.paused, viewport.visible, stage, cancel]);
   // ─── Context ────────────────────────────────────────────────────────────────
   const value: DragonExperience = {
     frame,
@@ -93,51 +84,13 @@ export const DragonExperienceProviderTA = ({
       reportBehavior,
     },
     playback: { ...playback, roar },
-    fire: {
-      ...fireController,
-      canFire:
-        ready &&
-        !failed &&
-        !playback.paused &&
-        isFireStage(stage) &&
-        behavior !== "transitioning" &&
-        fireController.phase === "idle",
-    },
-    audio,
+    fire: fireController,
     inspect,
   };
-  const ambient = !isFireStage(stage);
-  const status = useMemo(
-    () =>
-      ({
-        hero: "En vuelo",
-        catalog: "Sobre la colección",
-        study: "Estudio de Caraxes",
-        customization: "Entre acabados",
-        process: "Del modelo a tus manos",
-        gallery: "Sobre la galería",
-        contact: "Tu próxima leyenda",
-      })[stage],
-    [stage],
-  );
   return (
     <ExperienceContext.Provider value={value}>
       {children}
       {viewport.mounted && !failed && <PersistentCanvas />}
-      <aside
-        className={`experience-dock ${ambient ? "is-ambient" : ""}`}
-        data-dragon-ui
-        aria-label="Control de la experiencia persistente"
-      >
-        <span>
-          <i />
-          {status}
-        </span>
-        <DragonControlsTA compact />
-        <a href="#caraxes" className="experience-inspect-link">
-          Inspeccionar ↗
-        </a>
-      </aside>
     </ExperienceContext.Provider>
   );
 };

@@ -15,6 +15,7 @@ import {
   SkinnedMesh,
   Mesh,
   MeshStandardMaterial,
+  PerspectiveCamera,
 } from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { useDragonExperience } from "@/components/experience/DragonExperienceProviderTA";
@@ -24,10 +25,11 @@ import {
   dampFactor,
 } from "@/components/experience/flight-math";
 import type { DragonBehavior } from "@/components/experience/types";
+import { dragonAsset } from "@/components/experience/dragon-asset";
 
 // ─── The only model instance and mixer in the application ──────────────────────
 export const DragonWorldTA = ({ economical }: { economical: boolean }) => {
-  const gltf = useGLTF("/models/draconis-serpentine-v2.glb");
+  const gltf = useGLTF(dragonAsset.url);
   const { frame: frameRef, scene, fire, playback } = useDragonExperience();
   const { camera, gl, invalidate } = useThree();
   const { onReady } = scene;
@@ -41,6 +43,7 @@ export const DragonWorldTA = ({ economical }: { economical: boolean }) => {
     gazeX: 0,
     gazeY: 0,
     flightSpeed: 1,
+    glideWeight: 0,
     target: getFlightTarget([], 0),
     reportedAt: 0,
     initialized: false,
@@ -61,9 +64,16 @@ export const DragonWorldTA = ({ economical }: { economical: boolean }) => {
     const box = new Box3().setFromObject(model);
     const center = box.getCenter(new Vector3());
     const size = box.getSize(new Vector3());
-    const head = model.getObjectByName("Head");
-    const jaw = model.getObjectByName("Jaw");
-    const neck = model.getObjectByName("Neck_10");
+    const head = model.getObjectByName(dragonAsset.bones.head);
+    const jaw = model.getObjectByName(dragonAsset.bones.jaw);
+    const neck = model.getObjectByName(dragonAsset.bones.neck);
+    const eyes = dragonAsset.bones.eyes.flatMap((name) => {
+      const bone = model.getObjectByName(name);
+      return bone ? [{ bone, rest: bone.quaternion.clone() }] : [];
+    });
+    const mixer = new AnimationMixer(model);
+    const flightClip = gltf.animations.find((clip) => clip.name === dragonAsset.clips.flight);
+    const glideClip = gltf.animations.find((clip) => clip.name === dragonAsset.clips.glide);
     model.traverse((node) => {
       if (node instanceof SkinnedMesh) {
         node.computeBoundingSphere();
@@ -83,24 +93,25 @@ export const DragonWorldTA = ({ economical }: { economical: boolean }) => {
       model,
       center,
       size,
-      mixer: new AnimationMixer(model),
+      mixer,
+      flight: flightClip ? mixer.clipAction(flightClip) : null,
+      glide: glideClip ? mixer.clipAction(glideClip) : null,
       head,
       jaw,
       neck,
-      mouth: model.getObjectByName("Mouth"),
+      eyes,
+      mouth: model.getObjectByName(dragonAsset.bones.mouth),
       headRest: head?.quaternion.clone(),
       jawRest: jaw?.quaternion.clone(),
       neckRest: neck?.quaternion.clone(),
     };
-  }, [gltf.scene, gl]);
+  }, [gltf.scene, gltf.animations, gl]);
   const resourceRef = useRef(resource);
   // ─── Model lifetime, real-geometry raycasting ─────────────────────────────────
   useEffect(() => {
     resourceRef.current = resource;
-    const clip = gltf.animations.find(
-      (animation) => animation.name === "Flight",
-    );
-    if (clip) resource.mixer.clipAction(clip).play();
+    resource.flight?.reset().setEffectiveWeight(1).play();
+    resource.glide?.reset().setEffectiveWeight(0).play();
     gl.domElement.setAttribute("data-model-instance", resource.model.uuid);
     const hit = (x: number, y: number) => {
       vectors.pointer.set(
@@ -148,7 +159,20 @@ export const DragonWorldTA = ({ economical }: { economical: boolean }) => {
     }
     const target = tick.target;
     const inspecting = data.layout.stage === "study" && data.inspect.enabled;
-    const pixel = state.viewport.width / state.size.width;
+    if (running) tick.time += dt;
+    // The camera breathes between close study and distant flight. Projected
+    // layout anchors remain aligned with the real DOM at each camera distance.
+    if (camera instanceof PerspectiveCamera) {
+      camera.position.z = MathUtils.damp(camera.position.z, 26 - target.featured * 1.4, 2.2, dt);
+      const fov = MathUtils.damp(camera.fov, 39 - target.featured * 2, 2.2, dt);
+      if (Math.abs(camera.fov - fov) > 0.0001) {
+        camera.fov = fov;
+        camera.updateProjectionMatrix();
+      }
+    }
+    const pixel = camera instanceof PerspectiveCamera
+      ? 2 * camera.position.z * Math.tan(MathUtils.degToRad(camera.fov / 2)) / state.size.height
+      : state.viewport.width / state.size.width;
     const padding = data.viewport.width < 760 ? 0.86 : 0.94;
     const scale =
       Math.min(
@@ -169,19 +193,21 @@ export const DragonWorldTA = ({ economical }: { economical: boolean }) => {
       ? (0.5 - data.pointer.y / data.viewport.height) * 2
       : 0;
     const avoidance = recent && data.pointer.speed > 1.8 ? -0.07 : 0;
-    if (running) tick.time += dt;
     const float = data.viewport.reduced
       ? 0
       : Math.sin(tick.time * 0.8) * target.featured * 6;
+    const entrance = data.viewport.reduced ? 1 : MathUtils.smootherstep(tick.time, 0, 3.2);
+    const depth = -(1 - entrance) * 12 - (1 - target.featured) * 3;
+    const perspective = (camera.position.z - depth) / camera.position.z;
     vectors.position.set(
-      (target.x - state.size.width / 2) * pixel,
-      (state.size.height / 2 - target.y - float) * pixel,
-      0,
+      (target.x - state.size.width / 2) * pixel * perspective,
+      (state.size.height / 2 - target.y - float) * pixel * perspective,
+      depth,
     );
     const blend = data.viewport.reduced ? 1 : dampFactor(4.3, dt);
-    if (tick.time < 2 && !data.viewport.reduced)
+    if (entrance < 1)
       vectors.position.setX(
-        vectors.position.x + (1 - Math.min(tick.time / 2, 1)) * 1.8,
+        vectors.position.x + (1 - entrance) * 1.2,
       );
     if (!tick.initialized) {
       root.current.position.copy(vectors.position);
@@ -192,9 +218,12 @@ export const DragonWorldTA = ({ economical }: { economical: boolean }) => {
       vectors.scale.set(scale, scale, scale).multiplyScalar(1 + avoidance),
       blend,
     );
+    const studyTurn = data.layout.stage === "study" && !data.viewport.reduced
+      ? Math.sin(tick.time * 0.17) * 0.24
+      : 0;
     vectors.euler.set(
       0.22 + (inspecting ? data.inspect.pitch : 0),
-      target.yaw + (inspecting ? data.inspect.yaw : gazeX * 0.055),
+      target.yaw + (inspecting ? data.inspect.yaw : studyTurn + gazeX * 0.055),
       target.bank -
         0.035 +
         (data.viewport.reduced ? 0 : Math.sin(tick.time * 0.42) * 0.018),
@@ -216,19 +245,29 @@ export const DragonWorldTA = ({ economical }: { economical: boolean }) => {
       if (live.head && live.headRest) live.head.quaternion.copy(live.headRest);
       if (live.jaw && live.jawRest) live.jaw.quaternion.copy(live.jawRest);
       if (live.neck && live.neckRest) live.neck.quaternion.copy(live.neckRest);
+      live.eyes.forEach(({ bone, rest }) => bone.quaternion.copy(rest));
+      const fireElapsed = now - data.animation.fireAt,
+        roarElapsed = now - data.animation.roarAt;
+      const firing = data.animation.fireAt > 0 && fireElapsed < 3700;
+      const roaring = data.animation.roarAt > 0 && roarElapsed < 1500;
+      const autonomousGlide = MathUtils.smoothstep(Math.sin(tick.time * 0.25), 0.35, 0.9) * 0.76;
+      const desiredGlide = inspecting ? 0.9 : firing ? 0.78 : data.layout.stage === "study" ? 0.62 : autonomousGlide;
+      tick.glideWeight = MathUtils.damp(tick.glideWeight, live.glide ? desiredGlide : 0, 1.8, dt);
+      live.flight?.setEffectiveWeight(1 - tick.glideWeight);
+      live.glide?.setEffectiveWeight(tick.glideWeight);
       tick.flightSpeed = MathUtils.damp(
         tick.flightSpeed,
-        inspecting ? 0.3 : data.layout.stage === "contact" ? 0.55 : 1,
+        inspecting ? 0.58 : data.layout.stage === "contact" ? 0.72 : 0.95 + Math.sin(tick.time * 0.37) * 0.09,
         3,
         dt,
       );
       live.mixer.update(dt * tick.flightSpeed);
       tick.gazeX = MathUtils.damp(tick.gazeX, gazeX, 4, dt);
       tick.gazeY = MathUtils.damp(tick.gazeY, gazeY, 4, dt);
-      const fireElapsed = now - data.animation.fireAt,
-        roarElapsed = now - data.animation.roarAt;
-      const firing = data.animation.fireAt > 0 && fireElapsed < 3700;
-      const roaring = data.animation.roarAt > 0 && roarElapsed < 1500;
+      live.eyes.forEach(({ bone }) => {
+        bone.rotation.y += MathUtils.clamp(tick.gazeX * -0.16, -0.18, 0.18);
+        bone.rotation.z += MathUtils.clamp(tick.gazeY * -0.12, -0.16, 0.16);
+      });
       const opening = firing
         ? Math.min(fireElapsed / 700, 1) *
           Math.min(Math.max(3700 - fireElapsed, 0) / 650, 1)

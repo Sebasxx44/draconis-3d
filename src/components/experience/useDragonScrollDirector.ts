@@ -42,6 +42,10 @@ export const useDragonScrollDirector = (frameRef: DragonFrameRef) => {
     const schedule = () => {
       if (!scheduled) scheduled = requestAnimationFrame(update);
     };
+    const scrolled = () => {
+      frameRef.current.events.scroll.forEach((listener) => listener());
+      schedule();
+    };
     const measure = () => {
       const width = document.documentElement.clientWidth;
       const height = innerHeight;
@@ -153,13 +157,13 @@ export const useDragonScrollDirector = (frameRef: DragonFrameRef) => {
       const section = document.getElementById(id);
       if (section) observer.observe(section);
     });
-    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("scroll", scrolled, { passive: true });
     window.addEventListener("resize", measure, { passive: true });
     measure();
     return () => {
       observer.disconnect();
       cancelAnimationFrame(scheduled);
-      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("scroll", scrolled);
       window.removeEventListener("resize", measure);
     };
   }, [frameRef]);

@@ -68,6 +68,7 @@ export interface DragonFrame {
     fireAt: number;
     behavior: DragonBehavior;
   };
+  events: { scroll: Set<() => void> };
   hitTest: ((x: number, y: number) => boolean) | null;
   invalidate: (() => void) | null;
 }
@@ -89,30 +90,17 @@ export interface DragonExperience {
   };
   playback: {
     paused: boolean;
-    interactive: boolean;
     togglePause: () => void;
-    toggleInteraction: () => void;
     roar: () => void;
   };
   fire: {
     phase: FirePhase;
     startedAt: number;
-    canFire: boolean;
     breathe: () => void;
     cancel: () => void;
   };
-  audio: {
-    enabled: boolean;
-    toggle: () => void;
-    play: (kind: "roar" | "fire") => void;
-    stop: () => void;
-  };
   inspect: {
     enabled: boolean;
-    zoom: number;
-    toggle: () => void;
-    zoomBy: (amount: number) => void;
-    reset: () => void;
   };
 }
 
@@ -134,6 +122,7 @@ export const createDragonFrame = (): DragonFrame => ({
     fireAt: 0,
     behavior: "idle",
   },
+  events: { scroll: new Set() },
   hitTest: null,
   invalidate: null,
 });

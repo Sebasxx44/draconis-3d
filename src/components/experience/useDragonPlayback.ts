@@ -2,13 +2,9 @@
 import { useCallback, useEffect, useState } from "react";
 import type { DragonFrameRef } from "@/components/experience/types";
 
-export const useDragonPlayback = (
-  frameRef: DragonFrameRef,
-  stopAudio: () => void,
-) => {
+export const useDragonPlayback = (frameRef: DragonFrameRef) => {
   // ─── State ──────────────────────────────────────────────────────────────────
   const [paused, setPaused] = useState(false);
-  const [interactive, setInteractive] = useState(true);
   const [reduced, setReduced] = useState(false);
   const [visible, setVisible] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -17,13 +13,6 @@ export const useDragonPlayback = (
     const next = !frameRef.current.animation.paused;
     frameRef.current.animation.paused = next;
     setPaused(next);
-    if (next) stopAudio();
-    frameRef.current.invalidate?.();
-  }, [frameRef, stopAudio]);
-  const toggleInteraction = useCallback(() => {
-    const next = !frameRef.current.animation.interactive;
-    frameRef.current.animation.interactive = next;
-    setInteractive(next);
     frameRef.current.invalidate?.();
   }, [frameRef]);
   // ─── Lifecycle ──────────────────────────────────────────────────────────────
@@ -39,8 +28,7 @@ export const useDragonPlayback = (
       const active = document.visibilityState === "visible";
       frameRef.current.viewport.visible = active;
       setVisible(active);
-      if (!active) stopAudio();
-      else frameRef.current.invalidate?.();
+      if (active) frameRef.current.invalidate?.();
     };
     const initialFrame = requestAnimationFrame(() => {
       motionChanged();
@@ -54,9 +42,9 @@ export const useDragonPlayback = (
       preference.removeEventListener("change", motionChanged);
       document.removeEventListener("visibilitychange", visibilityChanged);
     };
-  }, [frameRef, stopAudio]);
+  }, [frameRef]);
   return {
-    playback: { paused, interactive, togglePause, toggleInteraction },
+    playback: { paused, togglePause },
     viewport: { reduced, visible, mounted },
   };
 };

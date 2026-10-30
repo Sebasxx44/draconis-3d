@@ -11,6 +11,9 @@ const { createWhatsAppLink } = await import(
 const { dragons } = await import(
   pathToFileURL(join(process.cwd(), "src/data/dragons.ts")).href
 );
+const { dragonAsset } = await import(
+  pathToFileURL(join(process.cwd(), "src/components/experience/dragon-asset.ts")).href
+);
 
 // ─── Contact behavior ─────────────────────────────────────────────────────────
 test("El contacto ausente o inválido nunca genera un enlace falso", () => {
@@ -49,9 +52,9 @@ test("Los 23 dragones tienen identidad, imagen y mensaje propios", async () => {
   }
 });
 
-test("El GLB incluye un esqueleto, animación de vuelo y anclaje de boca", async () => {
+test("El GLB activo incluye vuelo, planeo, ojos articulados y anclaje de boca", async () => {
   const buffer = await readFile(
-    join(process.cwd(), "public/models/draconis-serpentine-v2.glb"),
+    join(process.cwd(), "public", dragonAsset.url),
   );
   assert.equal(buffer.subarray(0, 4).toString(), "glTF");
   assert.equal(buffer.readUInt32LE(4), 2);
@@ -60,6 +63,13 @@ test("El GLB incluye un esqueleto, animación de vuelo y anclaje de boca", async
   assert.ok(model.skins.length > 0);
   assert.equal(model.images.length, 6);
   assert.ok(model.materials.some((material) => material.normalTexture && material.pbrMetallicRoughness.baseColorTexture));
-  assert.ok(model.animations.some((animation) => animation.name === "Flight"));
-  assert.ok(model.nodes.some((node) => node.name === "Mouth"));
+  for (const clip of Object.values(dragonAsset.clips)) {
+    assert.ok(model.animations.some((animation) => animation.name === clip && animation.channels.length > 0));
+  }
+  assert.ok(model.nodes.some((node) => node.name === dragonAsset.bones.mouth));
+  for (const name of dragonAsset.bones.eyes) {
+    const eyeIndex = model.nodes.findIndex((node) => node.name === name);
+    assert.ok(eyeIndex >= 0);
+    assert.ok(model.skins.some((skin) => skin.joints.includes(eyeIndex)));
+  }
 });

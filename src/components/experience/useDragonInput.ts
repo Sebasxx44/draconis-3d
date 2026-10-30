@@ -1,6 +1,6 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import type { DragonFrameRef } from "@/components/experience/types";
+import { useEffect, useState } from "react";
+import type { DragonFrameRef, DragonStage } from "@/components/experience/types";
 
 // ─── UI always has priority over raycasting ────────────────────────────────────
 export const isInteractiveTarget = (target: EventTarget | null) =>
@@ -12,83 +12,113 @@ export const isInteractiveTarget = (target: EventTarget | null) =>
       ),
     ));
 
+type DragonPress = {
+  id: number;
+  pointerType: string;
+  stage: DragonStage;
+  x: number;
+  y: number;
+  startX: number;
+  startY: number;
+  dragged: boolean;
+};
+
 export const useDragonInput = (frameRef: DragonFrameRef, roar: () => void) => {
+  // ─── A gesture temporarily yields autonomous flight to the visitor ────────────
   const [enabled, setEnabled] = useState(false);
-  const [zoom, setZoom] = useState(1);
-  const toggle = useCallback(() => {
-    const next = !frameRef.current.inspect.enabled;
-    frameRef.current.inspect.enabled = next;
-    setEnabled(next);
-    frameRef.current.invalidate?.();
-  }, [frameRef]);
-  const zoomBy = useCallback(
-    (amount: number) => {
-      const next = Math.min(
-        1.4,
-        Math.max(0.75, frameRef.current.inspect.zoom + amount),
-      );
-      frameRef.current.inspect.zoom = next;
-      setZoom(next);
-      frameRef.current.invalidate?.();
-    },
-    [frameRef],
-  );
-  const reset = useCallback(() => {
-    frameRef.current.inspect.yaw = 0;
-    frameRef.current.inspect.pitch = 0;
-    frameRef.current.inspect.zoom = 1;
-    setZoom(1);
-    frameRef.current.invalidate?.();
-  }, [frameRef]);
   useEffect(() => {
-    const pressed = new Map<
-      number,
-      { x: number; y: number; startX: number; startY: number }
-    >();
+    let pressed: DragonPress | null = null;
+    let releaseTimer: ReturnType<typeof setTimeout> | undefined;
     let previousX = 0,
       previousY = 0,
-      previousAt = 0,
-      pinchDistance = 0;
-    const move = (event: PointerEvent) => {
-      const now = performance.now(),
-        dt = Math.max(now - previousAt, 8);
+      previousAt = 0;
+    const canInteract = () => {
       const current = frameRef.current;
+      return (
+        current.animation.interactive &&
+        !current.animation.paused &&
+        !current.viewport.reduced &&
+        current.viewport.visible &&
+        document.visibilityState === "visible"
+      );
+    };
+    const release = () => {
+      clearTimeout(releaseTimer);
+      const current = frameRef.current;
+      current.inspect.enabled = false;
+      current.inspect.dragging = false;
+      current.inspect.yaw = 0;
+      current.inspect.pitch = 0;
+      current.inspect.zoom = 1;
+      setEnabled(false);
+      current.invalidate?.();
+    };
+    const cancel = () => {
+      pressed = null;
+      release();
+    };
+    // ─── Pointer observation never takes ownership of native scrolling ──────────
+    const move = (event: PointerEvent) => {
+      const now = performance.now();
+      const current = frameRef.current;
+      const blocked =
+        !canInteract() ||
+        event.pointerType === "touch" ||
+        isInteractiveTarget(event.target);
       current.pointer = {
         ...current.pointer,
         x: event.clientX,
         y: event.clientY,
-        speed: Math.min(
-          8,
-          Math.hypot(event.clientX - previousX, event.clientY - previousY) / dt,
-        ),
+        speed: previousAt
+          ? Math.min(
+              8,
+              Math.hypot(event.clientX - previousX, event.clientY - previousY) /
+                Math.max(now - previousAt, 8),
+            )
+          : 0,
         lastAt: now,
-        blocked: isInteractiveTarget(event.target),
+        blocked,
       };
-      const point = pressed.get(event.pointerId);
-      if (
-        point &&
-        current.inspect.enabled &&
-        current.layout.stage === "study"
-      ) {
-        if (pressed.size === 1) {
-          current.inspect.yaw += (event.clientX - point.x) * 0.008;
-          current.inspect.pitch = Math.min(
-            0.6,
-            Math.max(
-              -0.5,
-              current.inspect.pitch + (event.clientY - point.y) * 0.005,
-            ),
+      if (pressed?.id === event.pointerId) {
+        if (
+          !canInteract() ||
+          isInteractiveTarget(event.target) ||
+          current.layout.stage !== pressed.stage
+        ) {
+          cancel();
+        } else {
+          const distance = Math.hypot(
+            event.clientX - pressed.startX,
+            event.clientY - pressed.startY,
           );
+          pressed.dragged ||= distance >= 7;
+          if (
+            pressed.dragged &&
+            pressed.pointerType !== "touch" &&
+            current.layout.stage === "study"
+          ) {
+            clearTimeout(releaseTimer);
+            current.inspect.enabled = true;
+            current.inspect.dragging = true;
+            current.inspect.yaw = Math.min(
+              Math.PI,
+              Math.max(
+                -Math.PI,
+                current.inspect.yaw + (event.clientX - pressed.x) * 0.008,
+              ),
+            );
+            current.inspect.pitch = Math.min(
+              0.45,
+              Math.max(
+                -0.4,
+                current.inspect.pitch + (event.clientY - pressed.y) * 0.005,
+              ),
+            );
+            setEnabled(true);
+          }
+          pressed.x = event.clientX;
+          pressed.y = event.clientY;
         }
-        point.x = event.clientX;
-        point.y = event.clientY;
-        if (pressed.size === 2) {
-          const [a, b] = [...pressed.values()];
-          const distance = Math.hypot(a.x - b.x, a.y - b.y);
-          if (pinchDistance) zoomBy((distance - pinchDistance) * 0.004);
-          pinchDistance = distance;
-        }
-        current.inspect.dragging = true;
       }
       previousX = event.clientX;
       previousY = event.clientY;
@@ -96,70 +126,68 @@ export const useDragonInput = (frameRef: DragonFrameRef, roar: () => void) => {
       current.invalidate?.();
     };
     const down = (event: PointerEvent) => {
+      if (!event.isPrimary) {
+        cancel();
+        return;
+      }
       const current = frameRef.current;
       if (
-        !current.animation.interactive ||
+        event.button !== 0 ||
+        !canInteract() ||
         isInteractiveTarget(event.target) ||
         !current.hitTest?.(event.clientX, event.clientY)
       )
         return;
-      pressed.set(event.pointerId, {
+      clearTimeout(releaseTimer);
+      pressed = {
+        id: event.pointerId,
+        pointerType: event.pointerType,
+        stage: current.layout.stage,
         x: event.clientX,
         y: event.clientY,
         startX: event.clientX,
         startY: event.clientY,
-      });
-      if (
-        current.inspect.enabled &&
-        current.layout.stage === "study" &&
-        event.target instanceof HTMLElement
-      )
-        event.target.setPointerCapture(event.pointerId);
+        dragged: false,
+      };
     };
     const up = (event: PointerEvent) => {
-      const point = pressed.get(event.pointerId);
-      if (
-        point &&
-        Math.hypot(event.clientX - point.startX, event.clientY - point.startY) <
-          7 &&
-        !isInteractiveTarget(event.target)
-      )
-        roar();
-      pressed.delete(event.pointerId);
-      pinchDistance = 0;
-      frameRef.current.inspect.dragging = pressed.size > 0;
-    };
-    const cancel = () => {
-      pressed.clear();
-      pinchDistance = 0;
-      frameRef.current.inspect.dragging = false;
-    };
-    const wheel = (event: WheelEvent) => {
+      if (pressed?.id !== event.pointerId) return;
       const current = frameRef.current;
       if (
-        current.inspect.enabled &&
-        current.layout.stage === "study" &&
+        !pressed.dragged &&
+        Math.hypot(event.clientX - pressed.startX, event.clientY - pressed.startY) <
+          7 &&
+        canInteract() &&
+        current.layout.stage === pressed.stage &&
         !isInteractiveTarget(event.target) &&
         current.hitTest?.(event.clientX, event.clientY)
-      ) {
-        event.preventDefault();
-        zoomBy(-event.deltaY * 0.001);
-      }
+      )
+        roar();
+      pressed = null;
+      current.inspect.dragging = false;
+      if (current.inspect.enabled) releaseTimer = setTimeout(release, 1800);
+    };
+    const visibilityChanged = () => {
+      if (document.visibilityState !== "visible") cancel();
     };
     window.addEventListener("pointermove", move, { passive: true });
     window.addEventListener("pointerdown", down, { passive: true });
     window.addEventListener("pointerup", up, { passive: true });
     window.addEventListener("pointercancel", cancel, { passive: true });
+    const scrollEvents = frameRef.current.events.scroll;
+    scrollEvents.add(cancel);
     window.addEventListener("blur", cancel);
-    window.addEventListener("wheel", wheel, { passive: false });
+    document.addEventListener("visibilitychange", visibilityChanged);
     return () => {
+      clearTimeout(releaseTimer);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerdown", down);
       window.removeEventListener("pointerup", up);
       window.removeEventListener("pointercancel", cancel);
+      scrollEvents.delete(cancel);
       window.removeEventListener("blur", cancel);
-      window.removeEventListener("wheel", wheel);
+      document.removeEventListener("visibilitychange", visibilityChanged);
     };
-  }, [frameRef, roar, zoomBy]);
-  return { enabled, zoom, toggle, zoomBy, reset };
+  }, [frameRef, roar]);
+  return { enabled };
 };

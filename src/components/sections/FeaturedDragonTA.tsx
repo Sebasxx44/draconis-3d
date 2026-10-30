@@ -12,7 +12,7 @@ export const FeaturedDragonTA = () => (
       <span className="eyebrow">EL ESTUDIO 3D / 001</span>
       <DragonSlotTA stage="study" />
       <p className="concept-caption">
-        Modelo original provisional · Gira, acerca y explora.
+        Un mismo vuelo, desde todos los ángulos.
       </p>
     </div>
     <div className="featured-copy">

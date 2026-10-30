@@ -1,0 +1,71 @@
+{
+  "name": "Original serpentine · refined ocular and flight rig",
+  "source": "draconis-serpentine-v2.glb",
+  "status": "Same original provisional sculpture, not a cinematic production asset or licensed replica.",
+  "bytes": 3361052,
+  "vertices": 41630,
+  "triangles": 73528,
+  "removedDegenerateTriangles": 276,
+  "meshes": 6,
+  "joints": 55,
+  "textures": 6,
+  "eyeBones": [
+    "EyeFar",
+    "EyeNear"
+  ],
+  "eyeVertexCounts": {
+    "iris": 442,
+    "pupil": 162
+  },
+  "clips": [
+    {
+      "name": "Flight",
+      "duration": 6.4,
+      "channels": 46
+    },
+    {
+      "name": "Glide",
+      "duration": 9.6,
+      "channels": 46
+    }
+  ],
+  "bounds": {
+    "min": [
+      -4.790534973144531,
+      -0.8926900056004524,
+      -4.080266399383545
+    ],
+    "max": [
+      5.1204348754882805,
+      1.8503581142425536,
+      4.08025447845459
+    ]
+  },
+  "validation": {
+    "checkedPoses": 100,
+    "checkedVertices": 4163000,
+    "finite": true,
+    "loopSeams": [
+      {
+        "name": "Flight",
+        "maxQuaternionDifference": 5.960464477539063e-8
+      },
+      {
+        "name": "Glide",
+        "maxQuaternionDifference": 5.16191365590357e-8
+      }
+    ],
+    "animatedBounds": {
+      "min": [
+        -4.793488712866677,
+        -0.8951245789830963,
+        -4.2240250274782145
+      ],
+      "max": [
+        5.1807612746487255,
+        3.024407084865996,
+        4.222065396480981
+      ]
+    }
+  }
+}
