@@ -1,0 +1,66 @@
+{
+  "name": "Original serpentine v2",
+  "byteLength": 3287464,
+  "triangles": 73804,
+  "meshes": 6,
+  "skins": 6,
+  "textures": 6,
+  "animationChannels": 46,
+  "rigValidation": {
+    "sampledPoses": 25,
+    "validatedVertices": 1040750,
+    "finite": true,
+    "animatedBounds": {
+      "min": [
+        -4.793205839219848,
+        -0.9058056110116215,
+        -4.2135075356087
+      ],
+      "max": [
+        5.137622925101707,
+        3.100030971557456,
+        4.233504501908218
+      ]
+    }
+  },
+  "bounds": {
+    "min": [
+      -4.790534973144531,
+      -0.8926900029182434,
+      -4.08026647567749
+    ],
+    "max": [
+      5.120434761047363,
+      1.8503581285476685,
+      4.080254554748535
+    ]
+  },
+  "bones": [
+    "Head",
+    "Jaw",
+    "Mouth",
+    "Neck_0…12",
+    "Tail_0…18",
+    "WingNear/Far",
+    "ElbowNear/Far",
+    "WristNear/Far",
+    "FingerNear_0…4",
+    "FingerFar_0…4",
+    "LegNear/Far"
+  ],
+  "status": "Original provisional interpretation, not a production VFX asset or licensed replica.",
+  "references": [
+    "https://www.mpcvfx.com/en/filmography/house-of-the-dragon/",
+    "https://www.syfy.com/syfy-wire/house-of-the-dragon-vfx-interview-game-of-thrones-prequel"
+  ],
+  "externalAssetAudit": [
+    {
+      "url": "https://sketchfab.com/3d-models/caraxes-the-blood-wyrm-6694de8be0d846418a53202a81851bb8",
+      "result": "403 when inspecting source. Download rights and commercial permission not verified; not used."
+    },
+    {
+      "url": "https://space.snapmaker.com/en/model/17359-caraxes-house-of-the-dragon",
+      "result": "Page restricts redistribution/hosting of digital and derivative assets. Not used."
+    }
+  ]
+}

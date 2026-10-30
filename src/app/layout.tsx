@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/images/caraxes.png",
+        url: "/images/caraxes-v2.png",
         width: 1448,
         height: 1086,
         alt: "Render conceptual de un dragón rojo de colección DRACONIS",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "DRACONIS — 3D Collectibles",
     description: siteConfig.description,
-    images: ["/images/caraxes.png"],
+    images: ["/images/caraxes-v2.png"],
   },
   robots: { index: true, follow: true },
 };

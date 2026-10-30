@@ -44,7 +44,7 @@ export const CustomizationTA = () => (
     <div className="customization-content">
       <div className="customization-image">
         <Image
-          src="/images/syrax.png"
+          src="/images/syrax-v2.png"
           alt="Estudio conceptual de acabado dorado para una figura de dragón; no es una pieza fabricada."
           fill
           sizes="(max-width: 800px) 90vw, 45vw"

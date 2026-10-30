@@ -1,5 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
-import DragonExperienceTA from "@/components/dragon-3d/DragonExperienceTA";
+import { DragonSlotTA } from "@/components/experience/DragonSlotTA";
 import { WhatsAppButtonTA } from "@/components/ui/WhatsAppButtonTA";
 
 export const FeaturedDragonTA = () => (
@@ -10,7 +10,7 @@ export const FeaturedDragonTA = () => (
   >
     <div className="featured-visual">
       <span className="eyebrow">EL ESTUDIO 3D / 001</span>
-      <DragonExperienceTA variant="detail" />
+      <DragonSlotTA stage="study" />
       <p className="concept-caption">
         Modelo original provisional · Gira, acerca y explora.
       </p>

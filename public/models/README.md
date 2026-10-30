@@ -1,4 +1,4 @@
-# Dragón serpentino original
+# Dragón serpentino original v1 (archivo histórico)
 
 Geometría procedural original creada para DRACONIS. No contiene recursos de terceros ni reproduce un modelo oficial de Caraxes. Es una interpretación provisional, sustituible por un GLB autorizado.
 
@@ -7,4 +7,4 @@ Geometría procedural original creada para DRACONIS. No contiene recursos de ter
 - Animación integrada: `Flight`.
 - Anclaje para fuego: `Mouth`.
 
-Para reemplazarlo, usa un GLB autorizado y adapta los nombres de huesos y el anclaje en DragonModelTA.
+La escena activa utiliza la versión v2. Consulta `README-v2.md`; el punto de integración vigente es `DragonWorldTA`, dentro de `src/components/experience`.

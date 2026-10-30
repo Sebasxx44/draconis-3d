@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowUpRight, Box, Gem, WandSparkles } from "lucide-react";
-import DragonExperienceTA from "@/components/dragon-3d/DragonExperienceTA";
+import { DragonSlotTA } from "@/components/experience/DragonSlotTA";
 import { ButtonTA } from "@/components/ui/ButtonTA";
 import { WhatsAppButtonTA } from "@/components/ui/WhatsAppButtonTA";
 
@@ -47,7 +47,7 @@ export const HeroTA = () => (
           <i />
           EXPERIENCIA 3D EN TIEMPO REAL
         </span>
-        <DragonExperienceTA variant="hero" />
+        <DragonSlotTA stage="hero" />
         <div className="hero-dragon-label">
           <span>01 / EL GUSANO DE SANGRE</span>
           <p>

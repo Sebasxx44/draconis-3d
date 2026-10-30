@@ -1,0 +1,596 @@
+/* ─── One transparent viewport; native UI retains all pointer events ─────────── */
+.persistent-dragon-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+}
+.persistent-dragon-canvas > div,
+.persistent-dragon-canvas canvas {
+  pointer-events: none !important;
+}
+.experience-slot-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 535px;
+  height: 100%;
+}
+.experience-slot {
+  position: relative;
+  flex: 1;
+  min-height: 395px;
+  outline: none;
+  touch-action: pan-y;
+}
+.experience-slot:focus-visible {
+  outline: 1px dashed #d7bc8c70;
+  outline-offset: -12px;
+  border-radius: 10px;
+}
+.experience-slot.is-inspecting {
+  touch-action: none;
+  cursor: grab;
+}
+.experience-slot.is-inspecting:active {
+  cursor: grabbing;
+}
+.experience-slot-footer {
+  position: relative;
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 11px;
+  padding: 18px 10px 5px;
+}
+.experience-slot-footer > p {
+  font-size: 10px;
+  color: #b8b3aa;
+  text-align: center;
+  line-height: 1.7;
+}
+.experience-asset-note {
+  font-size: 8px;
+  color: #96938e;
+  text-align: center;
+  line-height: 1.6;
+}
+.experience-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 3px;
+  border: 1px solid #d7bc8c32;
+  border-radius: 5px;
+  padding: 5px;
+  background: #141618ee;
+  backdrop-filter: blur(16px);
+}
+.experience-controls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 9px 11px;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: #bdbbb5;
+  font-size: 10px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.experience-controls button:hover:not(:disabled) {
+  background: #d7bc8c13;
+  color: #f8e1b8;
+}
+.experience-controls button[aria-pressed="true"] {
+  color: #d7bc8c;
+  background: #d7bc8c0c;
+}
+.experience-controls button:disabled {
+  opacity: 0.4;
+}
+.experience-controls .experience-fire {
+  color: #dfc19b;
+  min-width: 113px;
+}
+.experience-controls.is-compact {
+  border: 0;
+  background: none;
+  padding: 0;
+  backdrop-filter: none;
+  flex-wrap: nowrap;
+}
+.experience-controls.is-compact button {
+  min-width: 37px;
+  min-height: 37px;
+  padding: 8px;
+}
+.experience-hover-hint {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: #d7bc8c;
+  white-space: nowrap;
+  background: #0c0d0edc;
+  padding: 6px 10px;
+  border-radius: 3px;
+  z-index: 12;
+  pointer-events: none;
+}
+.experience-dock {
+  position: fixed;
+  z-index: 35;
+  bottom: 22px;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 10px 7px 16px;
+  border: 1px solid #d7bc8c24;
+  background: #101214ed;
+  backdrop-filter: blur(14px);
+  border-radius: 7px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition:
+    opacity 0.3s,
+    transform 0.3s,
+    visibility 0.3s;
+}
+.experience-dock.is-ambient {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.experience-dock > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+  color: #b8b4ac;
+}
+.experience-dock > span > i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #d7bc8c;
+}
+.experience-inspect-link {
+  font-size: 9px;
+  color: #d7bc8c;
+  border-left: 1px solid #ffffff14;
+  padding-left: 10px;
+  padding-right: 3px;
+}
+.experience-fallback {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.experience-fallback img {
+  object-fit: contain;
+}
+.experience-fallback > span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 10px;
+  color: #c0b6a5;
+  padding: 8px;
+  background: #0c0d0edb;
+}
+.experience-unavailable {
+  color: #a7a8a9;
+  line-height: 1.9;
+  font-size: 13px;
+  max-width: 320px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  text-align: center;
+}
+
+/* ─── Scene slots and protected product surfaces ────────────────────────────── */
+body .hero-visual {
+  isolation: auto;
+  padding-bottom: 35px;
+  margin-left: -25px;
+}
+body .hero-visual .hero-dragon-label {
+  bottom: 159px;
+  z-index: 12;
+  left: 36px;
+}
+.hero-copy,
+.hero-bottom,
+.hero-scene-label {
+  position: relative;
+  z-index: 12;
+}
+.hero-scene-label {
+  position: absolute;
+}
+.hero-copy {
+  pointer-events: none;
+}
+.hero-copy a {
+  pointer-events: auto;
+}
+.hero-watermark,
+.hero-orbit {
+  z-index: 0;
+}
+body .featured-section {
+  overflow: visible;
+}
+body .featured-visual {
+  overflow: visible;
+  min-height: 590px;
+}
+body .featured-copy {
+  position: relative;
+  z-index: 12;
+  background: linear-gradient(90deg, #13141500, #121415 12%);
+}
+body .featured-visual > .eyebrow,
+body .featured-visual > .concept-caption {
+  z-index: 12;
+  position: relative;
+}
+.experience-slot-wrap--study {
+  min-height: 490px;
+}
+.experience-slot-wrap--study .experience-slot {
+  min-height: 355px;
+}
+.catalog-section-intro,
+body .catalog-toolbar,
+.catalog-result-count,
+.catalog-card,
+.catalog-expand,
+.catalog-empty,
+.catalog-note,
+.gallery-heading,
+.gallery-tile,
+.action-header,
+.customization-options,
+body .customization-image,
+body .process-grid,
+.process-note {
+  position: relative;
+  z-index: 12;
+}
+.catalog-section-intro,
+body .catalog-toolbar,
+.catalog-result-count,
+.gallery-heading,
+.customization-options {
+  background: #0c0d0e;
+}
+body .process-grid,
+.process-note {
+  background: #111214;
+}
+.gallery-tile {
+  background: #151719;
+}
+.contact-section {
+  padding-top: 65px;
+  padding-bottom: 85px;
+}
+.contact-inner {
+  display: grid;
+  grid-template-columns: 46% 54%;
+  align-items: center;
+  max-width: 1200px;
+  margin: auto;
+  text-align: left;
+  gap: 35px;
+}
+.contact-copy {
+  position: relative;
+  z-index: 12;
+  padding: 20px 0;
+}
+.contact-copy .contact-emblem {
+  margin: 0 0 24px;
+}
+.contact-copy > .eyebrow {
+  font-size: 8px;
+  max-width: 390px;
+}
+.contact-copy h2 {
+  font-size: clamp(48px, 5.4vw, 74px);
+}
+.contact-copy > p:not(.eyebrow) {
+  color: #b4b2af;
+  font-size: 13px;
+  line-height: 1.9;
+  margin: 24px 0 28px;
+}
+.contact-visual {
+  min-width: 0;
+  min-height: 480px;
+}
+.experience-slot-wrap--contact {
+  min-height: 480px;
+}
+.experience-slot-wrap--contact .experience-slot {
+  min-height: 350px;
+}
+.site-footer {
+  position: relative;
+  z-index: 12;
+  background: #0c0d0e;
+}
+body .catalog-artwork {
+  aspect-ratio: 1.16;
+}
+body .catalog-artwork-image {
+  object-fit: contain;
+}
+body .catalog-card-copy {
+  padding-top: 25px;
+}
+body .catalog-description {
+  line-height: 1.85;
+}
+.catalog-reference-summary {
+  margin-top: 22px;
+  border-top: 1px solid #ffffff12;
+  padding-top: 18px;
+}
+.catalog-reference-summary summary {
+  font-size: 11px;
+  color: #d7bc8c;
+  cursor: pointer;
+  line-height: 1.8;
+}
+.catalog-reference-summary dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 20px;
+  margin-top: 20px;
+}
+.catalog-reference-summary dt {
+  font-size: 8px;
+  letter-spacing: 0.13em;
+  color: #999;
+  text-transform: uppercase;
+}
+.catalog-reference-summary dd {
+  margin: 6px 0 0;
+  color: #c7c4bf;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.catalog-reference-summary .reference-provenance {
+  font-size: 10px;
+  color: #aaa;
+  line-height: 1.8;
+  margin-top: 16px;
+}
+.catalog-reference-summary a {
+  color: #d7bc8c;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-size: 10px;
+}
+
+/* ─── Environmental flight has a reserved gutter on larger screens ───────────── */
+@media (min-width: 1050px) {
+  body .catalog-section,
+  body .gallery-section,
+  body .customization-section,
+  body .process-section > .section-shell {
+    padding-right: 175px;
+  }
+  body .catalog-grid {
+    gap: 22px;
+  }
+  body .catalog-collection-mark {
+    display: none;
+  }
+}
+@media (min-width: 760px) and (max-width: 1049px) {
+  body .catalog-section,
+  body .gallery-section,
+  body .customization-section,
+  body .process-section > .section-shell {
+    padding-right: 135px;
+  }
+  body .catalog-collection-mark {
+    display: none;
+  }
+  body .catalog-filter {
+    padding: 8px;
+  }
+  body .catalog-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+  body .customization-content {
+    grid-template-columns: 1fr;
+  }
+  body .customization-image {
+    min-height: 360px;
+  }
+  body .process-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .experience-slot-wrap {
+    height: 405px;
+    min-height: 405px;
+  }
+  .experience-slot {
+    min-height: 285px;
+  }
+  .experience-slot-footer {
+    padding-top: 12px;
+    gap: 8px;
+  }
+  .experience-slot-footer > p {
+    font-size: 9px;
+  }
+  .experience-asset-note {
+    font-size: 7px;
+  }
+  .experience-controls {
+    gap: 1px;
+    padding: 4px;
+  }
+  .experience-controls button {
+    font-size: 9px;
+    padding: 8px;
+    min-height: 40px;
+  }
+  .experience-controls .experience-fire {
+    min-width: 106px;
+  }
+  body .hero-visual {
+    height: 480px;
+    min-height: 480px;
+    margin: 0 -24px;
+    padding: 30px 12px 15px;
+  }
+  body .hero-visual .hero-dragon-label {
+    bottom: 135px;
+    left: 30px;
+  }
+  .hero-dragon-label > p {
+    font-size: 28px;
+  }
+  body .featured-visual {
+    min-height: 490px;
+  }
+  .experience-slot-wrap--study {
+    min-height: 420px;
+    height: 420px;
+  }
+  .experience-slot-wrap--study .experience-slot {
+    min-height: 290px;
+  }
+  body .featured-copy {
+    background: #121415;
+    border-radius: 0 0 4px 4px;
+  }
+  .experience-dock {
+    bottom: 18px;
+    left: 12px;
+    padding: 5px 6px 5px 10px;
+    gap: 3px;
+  }
+  .experience-dock > span {
+    font-size: 8px;
+    max-width: 95px;
+    line-height: 1.6;
+  }
+  .experience-inspect-link {
+    display: none;
+  }
+  .experience-controls.is-compact button {
+    min-width: 33px;
+    min-height: 35px;
+  }
+  .contact-inner {
+    grid-template-columns: 1fr;
+    gap: 0;
+    text-align: center;
+  }
+  .contact-visual {
+    min-height: 350px;
+  }
+  .experience-slot-wrap--contact {
+    height: 360px;
+    min-height: 360px;
+  }
+  .experience-slot-wrap--contact .experience-slot {
+    min-height: 245px;
+  }
+  .contact-copy {
+    padding-top: 36px;
+  }
+  .contact-copy .contact-emblem {
+    margin: 0 auto 24px;
+  }
+  .contact-copy > .eyebrow {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .contact-copy h2 {
+    font-size: 56px;
+  }
+  .catalog-reference-summary dl {
+    grid-template-columns: 1fr;
+  }
+  body .gallery-section {
+    padding-top: 70px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .experience-dock {
+    transition: none;
+  }
+}
+
+.reference-palette {
+  display: flex;
+  gap: 6px;
+  margin-top: 20px;
+}
+.reference-palette > span {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #ffffff24;
+}
+.reference-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 0;
+}
+
+@media (max-width: 460px) {
+  body .header-inner {
+    gap: 10px;
+    padding-inline: 18px;
+  }
+  body .header-inner .brand {
+    gap: 8px;
+  }
+  body .header-inner .brand-type {
+    font-size: 19px;
+    letter-spacing: 0.11em;
+  }
+  body .header-contact {
+    font-size: 8px;
+    padding-inline: 8px;
+  }
+  body .mobile-menu-trigger {
+    flex-shrink: 0;
+    min-width: 32px;
+  }
+}

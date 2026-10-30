@@ -48,7 +48,7 @@ export const dragons: readonly Dragon[] = [
     origin: "screen",
     color: "#a94237",
     finish: "Rojo profundo · textura orgánica",
-    image: "/images/caraxes.png",
+    image: "/images/caraxes-v2.png",
     whatsappMessage:
       "Hola, estoy interesado en una figura 3D de Caraxes. ¿Me puedes compartir tamaños, acabados y precios?",
   },
@@ -62,7 +62,7 @@ export const dragons: readonly Dragon[] = [
     origin: "screen",
     color: "#8f9b76",
     finish: "Verde envejecido · tonos de tierra",
-    image: "/images/vhagar.png",
+    image: "/images/vhagar-v2.png",
     whatsappMessage:
       "Hola, quiero información sobre la figura 3D de Vhagar. ¿Qué opciones tienen disponibles?",
   },
@@ -76,7 +76,7 @@ export const dragons: readonly Dragon[] = [
     origin: "screen",
     color: "#bd9862",
     finish: "Bronce cálido · escamas definidas",
-    image: "/images/vermithor.png",
+    image: "/images/vermithor-v2.png",
     whatsappMessage:
       "Hola, me interesa una impresión 3D de Vermithor. ¿Podemos hablar de tamaños y acabados?",
   },
@@ -90,7 +90,7 @@ export const dragons: readonly Dragon[] = [
     origin: "screen",
     color: "#d3b169",
     finish: "Ocre dorado · reflejos suaves",
-    image: "/images/syrax.png",
+    image: "/images/syrax-v2.png",
     whatsappMessage: inquiry("Syrax"),
   },
   {
@@ -103,7 +103,7 @@ export const dragons: readonly Dragon[] = [
     origin: "screen",
     color: "#b85149",
     finish: "Carmesí · cuernos contrastados",
-    image: "/images/meleys.png",
+    image: "/images/meleys-v2.png",
     whatsappMessage: inquiry("Meleys"),
   },
   {
@@ -116,7 +116,7 @@ export const dragons: readonly Dragon[] = [
     origin: "screen",
     color: "#e0c07d",
     finish: "Oro luminoso · matices rosados",
-    image: "/images/sunfyre.png",
+    image: "/images/sunfyre-v2.png",
     whatsappMessage: inquiry("Sunfyre"),
   },
   {
@@ -129,7 +129,7 @@ export const dragons: readonly Dragon[] = [
     origin: "screen",
     color: "#afbac0",
     finish: "Gris perla · matices fríos",
-    image: "/images/seasmoke.png",
+    image: "/images/seasmoke-v2.png",
     whatsappMessage: inquiry("Seasmoke"),
   },
   {
@@ -142,7 +142,7 @@ export const dragons: readonly Dragon[] = [
     origin: "screen",
     color: "#b9babe",
     finish: "Plata suave · detalles claros",
-    image: "/images/silverwing.png",
+    image: "/images/silverwing-v2.png",
     whatsappMessage: inquiry("Silverwing"),
   },
   {
@@ -155,7 +155,7 @@ export const dragons: readonly Dragon[] = [
     origin: "screen",
     color: "#9badc9",
     finish: "Azul pálido · acentos de plata",
-    image: "/images/dreamfyre.png",
+    image: "/images/dreamfyre-v2.png",
     whatsappMessage: inquiry("Dreamfyre"),
   },
   {
@@ -168,7 +168,7 @@ export const dragons: readonly Dragon[] = [
     origin: "screen",
     color: "#7396bc",
     finish: "Azul intenso · detalles cobrizos",
-    image: "/images/tessarion.png",
+    image: "/images/tessarion-v2.png",
     whatsappMessage: inquiry("Tessarion"),
   },
   {
@@ -181,7 +181,7 @@ export const dragons: readonly Dragon[] = [
     origin: "screen",
     color: "#a2b49a",
     finish: "Verde suave · acentos marfil",
-    image: "/images/moondancer.png",
+    image: "/images/moondancer-v2.png",
     whatsappMessage: inquiry("Moondancer"),
   },
   {
@@ -194,7 +194,7 @@ export const dragons: readonly Dragon[] = [
     origin: "screen",
     color: "#7c9b73",
     finish: "Verde bosque · detalles cálidos",
-    image: "/images/vermax.png",
+    image: "/images/vermax-v2.png",
     whatsappMessage: inquiry("Vermax"),
   },
   {
@@ -207,7 +207,7 @@ export const dragons: readonly Dragon[] = [
     origin: "screen",
     color: "#d3c9b6",
     finish: "Marfil · matices nacarados",
-    image: "/images/arrax.png",
+    image: "/images/arrax-v2.png",
     whatsappMessage: inquiry("Arrax"),
   },
   {
@@ -220,7 +220,7 @@ export const dragons: readonly Dragon[] = [
     origin: "literary",
     color: "#8e9a9d",
     finish: "Azul gris · interpretación original",
-    image: "/images/tyraxes.png",
+    image: "/images/tyraxes-v2.png",
     whatsappMessage: inquiry("Tyraxes"),
   },
   {
@@ -233,7 +233,7 @@ export const dragons: readonly Dragon[] = [
     origin: "literary",
     color: "#9198ad",
     finish: "Gris tormenta · interpretación original",
-    image: "/images/stormcloud.png",
+    image: "/images/stormcloud-v2.png",
     whatsappMessage: inquiry("Stormcloud"),
   },
   {
@@ -246,7 +246,7 @@ export const dragons: readonly Dragon[] = [
     origin: "screen",
     color: "#a78b6c",
     finish: "Tonos terrosos · textura irregular",
-    image: "/images/sheepstealer.png",
+    image: "/images/sheepstealer-v2.png",
     whatsappMessage: inquiry("Sheepstealer"),
   },
   {
@@ -259,7 +259,7 @@ export const dragons: readonly Dragon[] = [
     origin: "literary",
     color: "#8a9a76",
     finish: "Negro profundo · acentos verdes",
-    image: "/images/the-cannibal.png",
+    image: "/images/the-cannibal-v2.png",
     whatsappMessage: inquiry("The Cannibal"),
   },
   {
@@ -272,7 +272,7 @@ export const dragons: readonly Dragon[] = [
     origin: "literary",
     color: "#a7b0b5",
     finish: "Gris humo · transiciones suaves",
-    image: "/images/grey-ghost.png",
+    image: "/images/grey-ghost-v2.png",
     whatsappMessage: inquiry("Grey Ghost"),
   },
   {
@@ -285,7 +285,7 @@ export const dragons: readonly Dragon[] = [
     origin: "historical",
     color: "#85818c",
     finish: "Negro carbón · escamas marcadas",
-    image: "/images/balerion.png",
+    image: "/images/balerion-v2.png",
     whatsappMessage: inquiry("Balerion"),
   },
   {
@@ -298,7 +298,7 @@ export const dragons: readonly Dragon[] = [
     origin: "historical",
     color: "#bab6a7",
     finish: "Plata envejecida · acentos de oro",
-    image: "/images/meraxes.png",
+    image: "/images/meraxes-v2.png",
     whatsappMessage: inquiry("Meraxes"),
   },
   {
@@ -311,7 +311,7 @@ export const dragons: readonly Dragon[] = [
     origin: "literary",
     color: "#9a8b94",
     finish: "Carbón y ciruela · interpretación original",
-    image: "/images/morghul.png",
+    image: "/images/morghul-v2.png",
     whatsappMessage: inquiry("Morghul"),
   },
   {
@@ -324,7 +324,7 @@ export const dragons: readonly Dragon[] = [
     origin: "literary",
     color: "#a4a18a",
     finish: "Oliva y oro · interpretación original",
-    image: "/images/shrykos.png",
+    image: "/images/shrykos-v2.png",
     whatsappMessage: inquiry("Shrykos"),
   },
   {
@@ -337,7 +337,7 @@ export const dragons: readonly Dragon[] = [
     origin: "literary",
     color: "#c69caa",
     finish: "Rosa suave · detalles negros",
-    image: "/images/morning.png",
+    image: "/images/morning-v2.png",
     whatsappMessage: inquiry("Morning"),
   },
 ];

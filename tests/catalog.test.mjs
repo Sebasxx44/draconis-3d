@@ -51,13 +51,15 @@ test("Los 23 dragones tienen identidad, imagen y mensaje propios", async () => {
 
 test("El GLB incluye un esqueleto, animación de vuelo y anclaje de boca", async () => {
   const buffer = await readFile(
-    join(process.cwd(), "public/models/draconis-original.glb"),
+    join(process.cwd(), "public/models/draconis-serpentine-v2.glb"),
   );
   assert.equal(buffer.subarray(0, 4).toString(), "glTF");
   assert.equal(buffer.readUInt32LE(4), 2);
   const jsonLength = buffer.readUInt32LE(12);
   const model = JSON.parse(buffer.subarray(20, 20 + jsonLength).toString());
   assert.ok(model.skins.length > 0);
+  assert.equal(model.images.length, 6);
+  assert.ok(model.materials.some((material) => material.normalTexture && material.pbrMetallicRoughness.baseColorTexture));
   assert.ok(model.animations.some((animation) => animation.name === "Flight"));
   assert.ok(model.nodes.some((node) => node.name === "Mouth"));
 });

@@ -8,36 +8,26 @@ import { PrintingProcessTA } from "@/components/sections/PrintingProcessTA";
 import { GalleryTA } from "@/components/sections/GalleryTA";
 import { ContactTA } from "@/components/sections/ContactTA";
 import { WhatsAppButtonTA } from "@/components/ui/WhatsAppButtonTA";
-import { RevealTA } from "@/components/ui/RevealTA";
+import { DragonExperienceProviderTA } from "@/components/experience/DragonExperienceProviderTA";
 
 const Home = () => (
-  <>
+  <DragonExperienceProviderTA>
     <a className="skip-link" href="#contenido">
       Saltar al contenido
     </a>
     <HeaderTA />
     <main id="contenido">
       <HeroTA />
-      <RevealTA>
         <DragonCollectionTA />
-      </RevealTA>
-      <RevealTA>
         <FeaturedDragonTA />
-      </RevealTA>
-      <RevealTA>
         <CustomizationTA />
-      </RevealTA>
-      <RevealTA>
         <PrintingProcessTA />
-      </RevealTA>
-      <RevealTA>
         <GalleryTA />
-      </RevealTA>
       <ContactTA />
     </main>
     <FooterTA />
     <WhatsAppButtonTA className="floating-whatsapp">Hablemos</WhatsAppButtonTA>
-  </>
+  </DragonExperienceProviderTA>
 );
 
 export default Home;

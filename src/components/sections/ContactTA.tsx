@@ -1,8 +1,10 @@
 import { ArrowUpRight, Flame } from "lucide-react";
+import { DragonSlotTA } from "@/components/experience/DragonSlotTA";
 import { WhatsAppButtonTA } from "@/components/ui/WhatsAppButtonTA";
 
 export const ContactTA = () => (
   <section id="contacto" className="contact-section">
+    <div className="contact-inner"><div className="contact-visual"><DragonSlotTA stage="contact" /></div><div className="contact-copy">
     <span className="contact-emblem">
       <Flame size={30} strokeWidth={1} />
     </span>
@@ -19,11 +21,12 @@ export const ContactTA = () => (
       <br className="desktop-break" /> de impresión, tamaño y acabado.
     </p>
     <WhatsAppButtonTA>
-      Hablar por WhatsApp
+      Consultar por WhatsApp
       <ArrowUpRight size={17} />
     </WhatsAppButtonTA>
     <span className="contact-note">
       Sin intermediarios. Hablemos de tu próxima pieza.
     </span>
+    </div></div>
   </section>
 );

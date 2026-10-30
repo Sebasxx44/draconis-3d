@@ -6,6 +6,7 @@ import Image from "next/image";
 import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowDown, ArrowUpRight, Check, Search, X } from "lucide-react";
 import { dragons, dragonOriginLabels, type Dragon } from "@/data/dragons";
+import { DragonReferenceTA } from "@/components/ui/DragonReferenceTA";
 import { WhatsAppButtonTA } from "@/components/ui/WhatsAppButtonTA";
 import "@/components/sections/catalog.css";
 
@@ -154,6 +155,7 @@ const DragonCardTA = ({ dragon, index }: DragonCardProps) => (
           <WhatsAppButtonTA message={dragon.whatsappMessage}>
             Consultar este dragón
           </WhatsAppButtonTA>
+          <DragonReferenceTA id={dragon.id} />
           <p className="catalog-dialog-note">
             {dragon.image
               ? "Imagen conceptual generada con IA. La figura final y sus características se acuerdan al cotizar."
